@@ -101,9 +101,9 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
         try:
             sheets_service = get_sheets_service()
             create_sheet_if_not_exists(sheets_service, spreadsheet_id, sheet_name)
-            print(f"📊 Connected to Google Sheets: {spreadsheet_id}")
+            print(f"Connected to Google Sheets: {spreadsheet_id}")
         except Exception as e:
-            print(f"❌ Failed to connect to Google Sheets: {e}")
+            print(f"Failed to connect to Google Sheets: {e}")
             print("Continuing without sheet submission...")
             sheets_service = None
     
@@ -142,7 +142,7 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
 
         try:
             fields = extract_fields(text)
-            print("✅ Extracted:", fields)
+            print("Extracted:", fields)
             processed_count += 1
             
             # Submit to Google Sheets if service is available
@@ -158,11 +158,11 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
             save_processed_email(msg['id'])
                 
         except Exception as e:
-            print(f"❌ Failed to extract data: {e}")
+            print(f"Failed to extract data: {e}")
             save_processed_email(msg['id'])  # Mark as processed even if failed
     
     # Print summary
-    print(f"\n📊 Processing Summary:")
+    print(f"\nProcessing Summary:")
     print(f"   New emails processed: {processed_count}")
     print(f"   Already processed (skipped): {skipped_count}")
     if sheets_service and spreadsheet_id:

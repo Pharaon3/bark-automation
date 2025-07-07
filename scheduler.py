@@ -17,25 +17,25 @@ logging.basicConfig(
 def job():
     """Run the email processing job with error handling"""
     try:
-        logging.info("🔄 Starting scheduled email processing...")
+        logging.info("Starting scheduled email processing...")
         process_emails()
-        logging.info("✅ Email processing completed successfully")
+        logging.info("Email processing completed successfully")
     except Exception as e:
-        logging.error(f"❌ Error during email processing: {e}")
+        logging.error(f"Error during email processing: {e}")
 
 def run_scheduler():
     """Run the scheduler with the specified interval"""
-    print("🚀 Starting Email Processor Scheduler")
-    print("📅 Will run every 3 minutes")
-    print("📝 Logs will be saved to 'email_processor.log'")
-    print("⏹️  Press Ctrl+C to stop")
+    print("Starting Email Processor Scheduler")
+    print("Will run every 3 minutes")
+    print("Logs will be saved to 'email_processor.log'")
+    print("Press Ctrl+C to stop")
     print("-" * 50)
     
     # Schedule the job to run every 3 minutes
     schedule.every(3).minutes.do(job)
     
     # Run the job immediately on startup
-    logging.info("🚀 Initial run starting...")
+    logging.info("Initial run starting...")
     job()
     
     # Keep the scheduler running
@@ -44,10 +44,10 @@ def run_scheduler():
             schedule.run_pending()
             time.sleep(1)
         except KeyboardInterrupt:
-            logging.info("⏹️  Scheduler stopped by user")
+            logging.info("Scheduler stopped by user")
             break
         except Exception as e:
-            logging.error(f"❌ Scheduler error: {e}")
+            logging.error(f"Scheduler error: {e}")
             time.sleep(60)  # Wait 1 minute before retrying
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ def main():
     spreadsheet_id = SPREADSHEET_ID or os.getenv('GOOGLE_SHEET_ID')
     
     if not spreadsheet_id:
-        print("\n📊 Google Sheets Integration:")
+        print("\nGoogle Sheets Integration:")
         print("To submit data to Google Sheets, you need to:")
         print("1. Create a Google Sheet")
         print("2. Get the spreadsheet ID from the URL")

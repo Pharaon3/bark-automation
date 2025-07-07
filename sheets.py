@@ -58,12 +58,12 @@ def check_duplicate_entry(service, spreadsheet_id, sheet_name, new_data):
                 
                 # Check if email matches (if both have emails)
                 if new_email and existing_email and new_email.lower() == existing_email.lower():
-                    print(f"⚠️  Duplicate found: Email {new_email} already exists")
+                    print(f"Duplicate found: Email {new_email} already exists")
                     return True
                 
                 # Check if phone number matches (if both have numbers)
                 if new_number and existing_number and new_number == existing_number:
-                    print(f"⚠️  Duplicate found: Phone number {new_number} already exists")
+                    print(f"Duplicate found: Phone number {new_number} already exists")
                     return True
         
         return False
@@ -106,7 +106,7 @@ def submit_to_sheet(service, spreadsheet_id, sheet_name, contact_data):
             body=body
         ).execute()
         
-        print(f"✅ Successfully added to sheet: {contact_data.get('Name', 'Unknown')}")
+        print(f"Successfully added to sheet: {contact_data.get('Name', 'Unknown')}")
         return True
         
     except HttpError as error:
@@ -140,7 +140,7 @@ def create_sheet_if_not_exists(service, spreadsheet_id, sheet_name):
                 body=body
             ).execute()
             
-            print(f"📋 Created headers in sheet '{sheet_name}'")
+            print(f"Created headers in sheet '{sheet_name}'")
         
     except HttpError as error:
         print(f"Error creating/checking sheet: {error}")
