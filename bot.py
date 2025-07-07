@@ -27,15 +27,34 @@ def get_email_text(payload):
 
 def extract_fields(text):
     def find(pattern, group=1):
-        match = re.search(pattern, text)
+        match = re.search(pattern, text, re.DOTALL)
         return match.group(group).strip() if match else None
 
+    name = find(r"🔔 (.*?) is looking")
+    # Project Details: from 'Project Details' to 'Contact $clientname'
+    project_details = None
+    if name:
+        # Escape name for regex
+        name_escaped = re.escape(name)
+        pd_match = re.search(r"Project Details(.*?)Contact " + name_escaped, text, re.DOTALL)
+        if pd_match:
+            project_details = pd_match.group(1)
+            # Clean up: strip, remove multiple blank lines, trim each line
+            project_details = '\n'.join(
+                [line.strip() for line in project_details.strip().splitlines()]
+            )
+            # Replace multiple blank lines with a single blank line
+            import re as _re
+            project_details = _re.sub(r'\n{2,}', '\n\n', project_details)
+
     return {
-        'Name': find(r"🔔 (.*?) is looking"),
+        'Name': name,
         'Field': find(r"is looking for a (.*?)\n"),
         'Address': find(r"📍(.*?):"),
         'Number': find(r"\(\d{3}\) [\d\*\-\s]+", group=0),
         'Email': find(r"[\w\*\.\-]+@[\w\*\.\-]+", group=0),
+        'Additional Info': find(r"“(.*?)”"),
+        'Project Details': project_details
     }
 
 
@@ -118,7 +137,7 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
             continue
 
         print(f"\n--- Message {msg['id']} ---")
-        print("Preview:", text[:200])  # Print first 200 characters
+        # print("Preview:", text)  # Print first 200 characters
 
         try:
             fields = extract_fields(text)

@@ -39,7 +39,7 @@ def check_duplicate_entry(service, spreadsheet_id, sheet_name, new_data):
         # Get all existing data from the sheet
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=f'{sheet_name}!A:E'  # Assuming columns A-E contain Name, Field, Address, Number, Email
+            range=f'{sheet_name}!A:G'  # Now columns A-G: Name, Field, Address, Number, Email, Additional Info, Project Details
         ).execute()
         
         values = result.get('values', [])
@@ -88,7 +88,9 @@ def submit_to_sheet(service, spreadsheet_id, sheet_name, contact_data):
             contact_data.get('Field', ''),
             contact_data.get('Address', ''),
             contact_data.get('Number', ''),
-            contact_data.get('Email', '')
+            contact_data.get('Email', ''),
+            contact_data.get('Additional Info', ''),
+            contact_data.get('Project Details', '')
         ]
         
         # Append the new row
@@ -98,7 +100,7 @@ def submit_to_sheet(service, spreadsheet_id, sheet_name, contact_data):
         
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range=f'{sheet_name}!A:E',
+            range=f'{sheet_name}!A:G',
             valueInputOption='RAW',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -119,21 +121,21 @@ def create_sheet_if_not_exists(service, spreadsheet_id, sheet_name):
         # Try to get the sheet to see if it exists
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=f'{sheet_name}!A1:E1'
+            range=f'{sheet_name}!A1:G1'
         ).execute()
         
         values = result.get('values', [])
         
         # If no data exists, add headers
         if not values:
-            headers = ['Name', 'Field', 'Address', 'Number', 'Email']
+            headers = ['Name', 'Field', 'Address', 'Number', 'Email', 'Additional Info', 'Project Details']
             body = {
                 'values': [headers]
             }
             
             service.spreadsheets().values().update(
                 spreadsheetId=spreadsheet_id,
-                range=f'{sheet_name}!A1:E1',
+                range=f'{sheet_name}!A1:G1',
                 valueInputOption='RAW',
                 body=body
             ).execute()
