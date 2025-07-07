@@ -28,7 +28,8 @@ def get_email_text(payload):
 def extract_fields(text):
     def find(pattern, group=1):
         match = re.search(pattern, text, re.DOTALL)
-        return match.group(group).strip() if match else None
+        value = match.group(group) if match else None
+        return value.strip() if value is not None else None
 
     name = find(r"🔔 (.*?) is looking")
     # Project Details: from 'Project Details' to 'Contact $clientname'
