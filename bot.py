@@ -46,13 +46,13 @@ def extract_fields(text):
             )
             # Replace multiple blank lines with a single blank line
             import re as _re
-            project_details = _re.sub(r'\n{2,}', '\n\n', project_details)
+            project_details = _re.sub(r'\n{2,}', '\n', project_details)
 
     return {
         'Name': name,
         'Field': find(r"is looking for a (.*?)\n"),
-        'Address': find(r"📍(.*?):"),
-        'Number': find(r"\(\d{3}\) [\d\*\-\s]+", group=0),
+        'Address': find(r"📍(.*?)(:|\n)"),
+        'Number': find(r"(\(?\d{3}\)?[\s-]?[*\d]{3}-?[*\d]{4})", group=0),
         'Email': find(r"[\w\*\.\-]+@[\w\*\.\-]+", group=0),
         'Additional Info': find(r"“(.*?)”"),
         'Project Details': project_details
