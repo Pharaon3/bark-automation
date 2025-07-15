@@ -8,18 +8,14 @@ from sheets import get_sheets_service, submit_to_sheet, create_sheet_if_not_exis
 from telegram_bot import telegram_notifier
 
 def match_email_pattern(email_to_check, pattern):
-    """
-    Check if an email matches a pattern where * represents hidden characters.
-    Example: pattern "c*****r@b*******h.net" should match "caryn@barkh.net"
-    """
-    # Escape regex special characters in the pattern
-    pattern_regex = re.escape(pattern)
-    # Replace escaped asterisks with . (any character)
-    pattern_regex = pattern_regex.replace(r'\*', '.')
-    # Add start and end anchors
-    pattern_regex = f"^{pattern_regex}$"
-    
-    return re.match(pattern_regex, email_to_check) is not None
+    if len(email_to_check) != len(pattern):
+        return False
+    for ec, pc in zip(email_to_check, pattern):
+        if pc == '*':
+            continue
+        if ec != pc:
+            return False
+    return True
 
 def scan_emails_in_json(json_data, target_pattern):
     """
@@ -45,33 +41,46 @@ def scan_emails_in_json(json_data, target_pattern):
 
 def scan_emails_from_api(name, address, email_pattern):
     """
-    Scan for emails using the Enformion API and return matching emails.
+    Scan for emails using the Enformion API and return matching emails for each last name in lastname.txt.
     """
-    url = "https://devapi.enformion.com/PersonSearch"
-    
-    payload = {
-        "lastName": name,
-        "Address": { "addressLine2": address }
-    }
+    url = "https://devapi.enformion.com/Contact/Enrich"
+
+    # Read last names from lastname.txt
+    lastnames = []
+    try:
+        with open('lastname.txt', 'r') as f:
+            lastnames = [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"Error reading lastname.txt: {e}")
+        return []
+
     headers = {
         "accept": "application/json",
         "galaxy-ap-name": "cc490f58acad474b9f0b4294d46ba207",
         "galaxy-ap-password": "fa062caea4cc4e3a8daba44f3240565c",
-        "galaxy-search-type": "Person",
+        "galaxy-search-type": "DevAPIContactEnrich",
         "content-type": "application/json"
     }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        json_data = response.json()
-        matching_emails = scan_emails_in_json(json_data, email_pattern)
-        
-        return matching_emails
-    except Exception as e:
-        print(f"Error scanning emails from API: {e}")
-        return []
+
+    all_matching_emails = []
+
+    for lastname in lastnames:
+        payload = {
+            "firstName": name,
+            "lastName": lastname,
+            "Address": { "addressLine2": address }
+        }
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+            json_data = response.json()
+            matching_emails = scan_emails_in_json(json_data, email_pattern)
+            all_matching_emails.extend(matching_emails)
+        except Exception as e:
+            print(f"Error scanning emails from API for last name '{lastname}': {e}")
+            continue
+
+    return all_matching_emails
 
 def get_email_text(payload):
     # Extracts text from email payload, falling back to HTML if text/plain is empty
@@ -228,8 +237,9 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
             print("Extracted:", fields)
             processed_count += 1
             
-            # Send Telegram notification for new email found
-            telegram_notifier.notify_email_found(fields)
+            # Only send Telegram notification if scanned emails are found
+            if fields.get('Scanned Emails'):
+                telegram_notifier.notify_email_found(fields)
             
             # Submit to Google Sheets if service is available
             if sheets_service and spreadsheet_id:
