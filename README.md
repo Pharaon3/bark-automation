@@ -7,6 +7,7 @@ This project extracts contact information from Bark.com emails and optionally su
 - ✅ Extracts contact information from Gmail emails (from team@bark.com)
 - ✅ Submits data to Google Sheets
 - ✅ Checks for duplicates before submission (by email or phone number)
+- ✅ Telegram notifications when new emails are found
 - ✅ Configurable settings
 - ✅ Detailed processing summary
 
@@ -39,7 +40,33 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
    - Set environment variable: `GOOGLE_SHEET_ID=your_spreadsheet_id`
    - Provide it when prompted during runtime
 
-### 4. First Run
+### 4. Telegram Bot Setup (Optional)
+
+To receive notifications on Telegram when new emails are found:
+
+1. Create a Telegram bot:
+   - Open Telegram and search for @BotFather
+   - Send `/newbot` command
+   - Follow instructions to create your bot
+   - Copy the bot token provided
+
+2. Get your chat ID:
+   - Start a chat with your bot
+   - Send any message to the bot
+   - Visit: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
+   - Look for `"chat" -> "id"` in the response
+
+3. Configure the bot:
+   - Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `config.py`
+   - Or set environment variables: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`
+   - Or configure interactively when running the script
+
+4. Test the configuration:
+   ```bash
+   python test_telegram.py
+   ```
+
+### 5. First Run
 
 Run the script for the first time:
 
@@ -50,6 +77,7 @@ python main.py
 This will:
 - Open a browser for Google OAuth authentication
 - Create `token.json` and `sheets_token.json` files
+- Configure Telegram notifications (if enabled)
 - Process emails and extract contact information
 
 ## Configuration
@@ -64,6 +92,11 @@ SHEET_NAME = 'Contacts'  # Sheet tab name
 # Email Processing
 MAX_EMAILS = 20  # Max emails to process per run
 EMAIL_QUERY = 'from:team@bark.com'  # Gmail search query
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN = 'your_bot_token_here'  # From @BotFather
+TELEGRAM_CHAT_ID = 'your_chat_id_here'      # Your chat ID
+TELEGRAM_ENABLED = True                      # Set to False to disable
 ```
 
 ## Usage
@@ -85,6 +118,8 @@ python main.py
 ```bash
 export GOOGLE_SHEET_ID="your_spreadsheet_id"
 export SHEET_NAME="Contacts"
+export TELEGRAM_BOT_TOKEN="your_bot_token"
+export TELEGRAM_CHAT_ID="your_chat_id"
 python main.py
 ```
 
@@ -135,6 +170,8 @@ The script provides detailed output:
 - `bot.py` - Email processing and extraction logic
 - `auth.py` - Gmail API authentication
 - `sheets.py` - Google Sheets integration
+- `telegram_bot.py` - Telegram notification system
+- `test_telegram.py` - Telegram configuration test script
 - `config.py` - Configuration settings
 - `GmailBot_credentials.json` - Google API credentials
 - `token.json` - Gmail OAuth token (auto-generated)
@@ -154,4 +191,10 @@ The script provides detailed output:
 ### Email Processing Issues
 - Verify Gmail API is enabled
 - Check that emails from team@bark.com exist in your Gmail
-- Ensure the email format matches the expected pattern 
+- Ensure the email format matches the expected pattern
+
+### Telegram Issues
+- Verify bot token is correct
+- Ensure chat ID is correct (user or group)
+- Check that the bot has permission to send messages
+- Test configuration with `python test_telegram.py` 

@@ -24,4 +24,10 @@ COLUMN_MAPPING = {
 }
 
 # Headers for the Google Sheet
-SHEET_HEADERS = ['Name', 'Field', 'Address', 'Number', 'Email'] 
+SHEET_HEADERS = ['Name', 'Field', 'Address', 'Number', 'Email']
+
+# Telegram Bot Configuration
+# Get your bot token from @BotFather on Telegram
+TELEGRAM_BOT_TOKEN = '7889851739:AAG77r2KwdEFdvSiKqcMwD-fqIHV-yr79xo'  # Set this to your bot token
+TELEGRAM_CHAT_ID = '5857280422'    # Set this to your chat ID (user or group)
+TELEGRAM_ENABLED = True   # Set to True to enable Telegram notifications 

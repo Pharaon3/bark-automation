@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from auth import get_gmail_service
 from sheets import get_sheets_service, submit_to_sheet, create_sheet_if_not_exists
+from telegram_bot import telegram_notifier
 
 def match_email_pattern(email_to_check, pattern):
     """
@@ -227,6 +228,9 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
             print("Extracted:", fields)
             processed_count += 1
             
+            # Send Telegram notification for new email found
+            telegram_notifier.notify_email_found(fields)
+            
             # Submit to Google Sheets if service is available
             if sheets_service and spreadsheet_id:
                 if submit_to_sheet(sheets_service, spreadsheet_id, sheet_name, fields):
@@ -252,3 +256,12 @@ def get_emails(spreadsheet_id=None, sheet_name='Contacts', check_processed=True)
         print(f"   Duplicates skipped: {duplicate_count}")
     else:
         print(f"   Sheet submission: Disabled")
+    
+    # Send Telegram summary notification
+    # summary = {
+    #     'processed': processed_count,
+    #     'submitted': submitted_count,
+    #     'duplicates': duplicate_count,
+    #     'skipped': skipped_count
+    # }
+    # telegram_notifier.notify_processing_summary(summary)
