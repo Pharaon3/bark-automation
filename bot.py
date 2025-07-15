@@ -1,8 +1,76 @@
 import base64
 import re
+import json
+import requests
 from bs4 import BeautifulSoup
 from auth import get_gmail_service
 from sheets import get_sheets_service, submit_to_sheet, create_sheet_if_not_exists
+
+def match_email_pattern(email_to_check, pattern):
+    """
+    Check if an email matches a pattern where * represents hidden characters.
+    Example: pattern "c*****r@b*******h.net" should match "caryn@barkh.net"
+    """
+    # Escape regex special characters in the pattern
+    pattern_regex = re.escape(pattern)
+    # Replace escaped asterisks with . (any character)
+    pattern_regex = pattern_regex.replace(r'\*', '.')
+    # Add start and end anchors
+    pattern_regex = f"^{pattern_regex}$"
+    
+    return re.match(pattern_regex, email_to_check) is not None
+
+def scan_emails_in_json(json_data, target_pattern):
+    """
+    Recursively scan JSON data for email addresses and check if they match the pattern.
+    """
+    matching_emails = []
+    
+    def scan_recursive(obj):
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                if key.lower() in ['email', 'emailaddress', 'email_address']:
+                    if isinstance(value, str) and '@' in value:
+                        if match_email_pattern(value, target_pattern):
+                            matching_emails.append(value)
+                else:
+                    scan_recursive(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                scan_recursive(item)
+    
+    scan_recursive(json_data)
+    return matching_emails
+
+def scan_emails_from_api(name, address, email_pattern):
+    """
+    Scan for emails using the Enformion API and return matching emails.
+    """
+    url = "https://devapi.enformion.com/PersonSearch"
+    
+    payload = {
+        "lastName": name,
+        "Address": { "addressLine2": address }
+    }
+    headers = {
+        "accept": "application/json",
+        "galaxy-ap-name": "cc490f58acad474b9f0b4294d46ba207",
+        "galaxy-ap-password": "fa062caea4cc4e3a8daba44f3240565c",
+        "galaxy-search-type": "Person",
+        "content-type": "application/json"
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        
+        json_data = response.json()
+        matching_emails = scan_emails_in_json(json_data, email_pattern)
+        
+        return matching_emails
+    except Exception as e:
+        print(f"Error scanning emails from API: {e}")
+        return []
 
 def get_email_text(payload):
     # Extracts text from email payload, falling back to HTML if text/plain is empty
@@ -48,18 +116,32 @@ def extract_fields(text):
             import re as _re
             project_details = _re.sub(r'\n{2,}', '\n', project_details)
 
+    # Extract basic fields
+    extracted_email = find(r"[\w\*\.\-]+@[\w\*\.\-]+", group=0)
+    address = find(r"📍(.*?)(:|\n)")
+    
+    # Scan for additional emails using the API
+    scanned_emails = []
+    if name and address and extracted_email:
+        print(f"Scanning for emails matching pattern: {extracted_email}")
+        scanned_emails = scan_emails_from_api(name, address, extracted_email)
+        if scanned_emails:
+            print(f"Found {len(scanned_emails)} matching emails: {', '.join(scanned_emails)}")
+        else:
+            print("No matching emails found in API response")
+
     return {
         'Name': name,
         'Field': find(r"is looking for a (.*?)\n"),
-        'Address': find(r"📍(.*?)(:|\n)"),
+        'Address': address,
         'Number': find(r"(\(?\d{3}\)?[\s-]?[*\d]{3}-?[*\d]{4})", group=0),
-        'Email': find(r"[\w\*\.\-]+@[\w\*\.\-]+", group=0),
+        'Email': extracted_email,
         'Additional Info': find(r"“(.*?)”"),
-        'Project Details': project_details
+        'Project Details': project_details,
+        'Scanned Emails': ', '.join(scanned_emails) if scanned_emails else ''
     }
 
 
-import json
 import os
 from datetime import datetime
 
