@@ -5,13 +5,15 @@ sheets_token.json
 
 # Processed email tracking
 processed_emails.json
-
+GmailBot_credentials.json
 # Logs
 *.log
 email_processor.log
 
 # Python
 __pycache__/
+bark_browser_profile/
+thatsthem_browser_profile/
 *.py[cod]
 *$py.class
 *.so

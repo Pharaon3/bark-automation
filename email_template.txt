@@ -1,0 +1,20 @@
+Subject: Your {field} request in {city}
+
+Hi {first_name},
+
+Thank you for sharing the details of your {field} project.
+
+Based on the information provided, we’d be pleased to discuss the work with you in more detail, review your requirements, and advise on the most practical options for the project. We can also help clarify the expected scope, materials, timeline, and estimated costs so you have a clear understanding before making any decisions.
+
+Would you be available for a brief call to discuss the project? Feel free to reply with a convenient time, and if available, you can also send through any photos, measurements, drawings, or additional information that may help us better assess the work.
+
+Best regards,  
+{sender_name}
+
+# ---------------------------------------------------------------------------
+# Lines starting with "#" are ignored. The first line must be "Subject: ...".
+# Available placeholders:
+#   {first_name}  {last_name}  {full_name}  {name}  {field}  {address}  {city}  {project_id}
+#   {sender_name}   (MAIL_FROM_NAME)
+# The postal address and an opt-out line are added automatically at the bottom of every email.
+# ---------------------------------------------------------------------------

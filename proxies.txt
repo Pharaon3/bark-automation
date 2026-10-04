@@ -1,0 +1,29 @@
+# # Copy this file to proxies.txt and replace the examples with your own SOCKS5 proxies.
+# # One proxy per line. Each ThatsThem lookup uses the NEXT proxy in the list.
+# # proxies.txt contains passwords: keep it out of git and don't share it.
+
+# # host:port                              (no login)
+# 203.0.113.10:1080
+
+# # username:password@host:port            (use this form if the password contains a colon)
+# myuser:mypassword@203.0.113.11:1080
+
+# # host:port:username:password
+# 203.0.113.12:1080:myuser:mypassword
+
+# # socks5:// URL form (special characters in the password as %XX, e.g. @ = %40)
+# socks5://myuser:my%40password@gateway.example.com:9050
+
+# # A single rotating-gateway endpoint also works: one line, the provider
+# # hands out a new IP per connection.
+
+socks5://OPRY4CZO:J20LFNHS@13.141.61.144:52494
+socks5://14a81de3a0ce1:2dbeb1781a@45.148.45.60:12324
+socks5://14a9b2fddf815:37eda84c05@179.61.249.229:12324
+socks5://14abcfaee631d:f51c4f4ef1@45.148.45.35:12324
+socks5://14acecf5545de:2a366cf7bb@45.148.45.139:12324
+socks5://14a208312fe8f:53577e3739@45.148.45.55:12324
+socks5://14a3cab48ee29:feb3137978@45.148.45.11:12324
+socks5://AZ9J0OZE:JRPGAERY@151.242.6.157:46609
+socks5://HL8EKTTO:QJ6B583V@151.242.6.147:46589
+socks5://14ab0bc603923:7c0fe96c07@217.67.70.206:12324
